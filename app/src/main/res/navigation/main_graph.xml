@@ -27,5 +27,33 @@
         android:id="@+id/homeFragment"
         android:name="com.ruhlan.lafyuuapplication.presentation.HomeFragment"
         android:label="fragment_home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_homeFragment_to_detailsFragment"
+            app:destination="@id/detailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/detailsFragment"
+        android:name="com.ruhlan.lafyuuapplication.presentation.DetailsFragment"
+        android:label="fragment_details"
+        tools:layout="@layout/fragment_details" >
+        <argument
+            android:name="productDetails"
+            app:argType="com.ruhlan.lafyuuapplication.model.Product" />
+    </fragment>
+    <fragment
+        android:id="@+id/offerFragment"
+        android:name="com.ruhlan.lafyuuapplication.presentation.OfferFragment"
+        android:label="fragment_offer"
+        tools:layout="@layout/fragment_offer" />
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.ruhlan.lafyuuapplication.presentation.SearchFragment"
+        android:label="fragment_search"
+        tools:layout="@layout/fragment_search" />
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.ruhlan.lafyuuapplication.presentation.ProfileFragment"
+        android:label="fragment_profile"
+        tools:layout="@layout/fragment_profile" />
 </navigation>

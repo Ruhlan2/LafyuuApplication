@@ -1,13 +1,16 @@
 package com.ruhlan.lafyuuapplication.model
 
 
+import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
+import kotlinx.parcelize.Parcelize
 
 data class ProductResponse(
     @SerializedName("products")
     val products: List<Product>?,
 )
 
+@Parcelize
 data class Product(
     @SerializedName("brand")
     val brand: String?,
@@ -45,4 +48,4 @@ data class Product(
     val warrantyInformation: String?,
     @SerializedName("weight")
     val weight: Int?
-)
+) : Parcelable

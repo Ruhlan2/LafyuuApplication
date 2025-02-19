@@ -14,15 +14,19 @@ import com.ruhlan.lafyuuapplication.model.Product
 class ProductAdapter : RecyclerView.Adapter<ProductAdapter.ProductVIewHolder>() {
 
     private val productList = mutableListOf<Product>()
+    var onClick: (Product) -> Unit = {}
 
     inner class ProductVIewHolder(private val binding: ItemProductsBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: Product,context:Context) {
+        fun bind(item: Product, context: Context) {
             Glide.with(context).load(item.thumbnail).into(binding.productImage)
             binding.productTitle.text = item.title
             binding.productPrice.text = item.price.toString()
             binding.productDiscount.text = "${item.discountPercentage} % Off"
+            binding.root.setOnClickListener {
+                onClick(item)
+            }
         }
     }
 
@@ -40,7 +44,7 @@ class ProductAdapter : RecyclerView.Adapter<ProductAdapter.ProductVIewHolder>() 
 
     override fun onBindViewHolder(holder: ProductVIewHolder, position: Int) {
         val item = productList[position]
-        holder.bind(item,holder.itemView.context)
+        holder.bind(item, holder.itemView.context)
     }
 
     fun updateList(list: List<Product>) {

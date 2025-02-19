@@ -1,6 +1,9 @@
 package com.ruhlan.lafyuuapplication.presentation
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -37,6 +40,14 @@ class LoginFragment : Fragment() {
     }
 
     private fun loginUserWithCredentials() {
+
+        binding.cardView.setOnClickListener {
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+            val uri = Uri.fromParts("package", requireContext().packageName, null)
+            intent.setData(uri)
+            startActivity(intent)
+        }
+
         binding.buttonSignIn.setOnClickListener {
             val email = binding.emailEditText.text.toString()
             val password = binding.passwordEditText.text.toString()
