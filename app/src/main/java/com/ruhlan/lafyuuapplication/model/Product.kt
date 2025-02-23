@@ -8,6 +8,8 @@ import kotlinx.parcelize.Parcelize
 data class ProductResponse(
     @SerializedName("products")
     val products: List<Product>?,
+    @SerializedName("total")
+    val total: Int?
 )
 
 @Parcelize

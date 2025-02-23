@@ -14,7 +14,7 @@ import com.ruhlan.lafyuuapplication.model.Product
 class ProductAdapter : RecyclerView.Adapter<ProductAdapter.ProductVIewHolder>() {
 
     private val productList = mutableListOf<Product>()
-    var onClick: (Product) -> Unit = {}
+    var onClick: (Int) -> Unit = {}
 
     inner class ProductVIewHolder(private val binding: ItemProductsBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -25,7 +25,7 @@ class ProductAdapter : RecyclerView.Adapter<ProductAdapter.ProductVIewHolder>() 
             binding.productPrice.text = item.price.toString()
             binding.productDiscount.text = "${item.discountPercentage} % Off"
             binding.root.setOnClickListener {
-                onClick(item)
+                onClick(item.id!!)
             }
         }
     }

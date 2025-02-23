@@ -29,7 +29,7 @@ class ProfileFragment : Fragment() {
         return binding.root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         getUserData()
     }
@@ -42,11 +42,13 @@ class ProfileFragment : Fragment() {
             ) {
                 if (response.isSuccessful) {
                     response.body()?.let {
-                        binding.userMail.text = it.email
-                        binding.userName.text = it.username
-                        Glide.with(requireContext()).load(it.image).into(binding.userImage)
-                        binding.userNumber.text = it.phone
-                        binding.birthDate.text = it.birthDate
+                        binding.profileFirstAndLastName.text = "${it.firstName} ${it.lastName}"
+                        binding.profileUserName.text = "@${it.username}"
+                        binding.profileEmail.text = it.email
+                        binding.profileNumber.text = it.phone
+                        Glide.with(requireContext()).load(it.image).into(binding.profileImage)
+                        binding.profileBirth.text = it.birthDate
+                        binding.profileGender.text = it.gender
                     }
                 } else {
                     Toast.makeText(requireContext(), "Unknown error", Toast.LENGTH_SHORT).show()

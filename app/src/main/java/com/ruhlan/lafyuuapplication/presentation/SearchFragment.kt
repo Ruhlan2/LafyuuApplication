@@ -5,56 +5,148 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.core.widget.addTextChangedListener
+import androidx.navigation.fragment.findNavController
 import com.ruhlan.lafyuuapplication.R
+import com.ruhlan.lafyuuapplication.adapter.ProductAdapter
+import com.ruhlan.lafyuuapplication.databinding.FragmentSearchBinding
+import com.ruhlan.lafyuuapplication.model.ProductResponse
+import com.ruhlan.lafyuuapplication.service.ApiClientMaker
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [SearchFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class SearchFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+    private var _binding: FragmentSearchBinding? = null
+    private val binding get() = _binding!!
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+    private val adapter = ProductAdapter()
+    private val api = ApiClientMaker.api
+
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        _binding = FragmentSearchBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        binding.searchProductRv.adapter = adapter
+        getAllProducts()
+        searchProduct()
+        sortProductsByName()
+
+        adapter.onClick = {
+            findNavController().navigate(
+                SearchFragmentDirections.actionSearchFragmentToDetailsFragment(
+                    it
+                )
+            )
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_search, container, false)
+    private fun sortProductsByName() {
+        binding.sortButton.setOnClickListener {
+            binding.loadingLyt.visibility = View.VISIBLE
+            api.sortProducts(
+                sortBy = "price",
+                order = "asc"
+            ).enqueue(object : Callback<ProductResponse> {
+                override fun onResponse(
+                    call: Call<ProductResponse>,
+                    response: Response<ProductResponse>
+                ) {
+                    if (response.isSuccessful) {
+                        response.body()?.let {
+                            binding.loadingLyt.visibility = View.GONE
+                            if (it.total == 0) {
+                                binding.productNotFoundLyt.visibility = View.VISIBLE
+                                binding.searchProductRv.visibility = View.GONE
+                            } else {
+                                binding.productNotFoundLyt.visibility = View.GONE
+                                binding.searchProductRv.visibility = View.VISIBLE
+                                adapter.updateList(it.products!!)
+                            }
+                        }
+                    } else {
+                        Toast.makeText(requireContext(),"Unknown error",Toast.LENGTH_SHORT).show()
+                    }
+                }
+                override fun onFailure(call: Call<ProductResponse>, t: Throwable) {
+                    Toast.makeText(requireContext(),t.toString(),Toast.LENGTH_SHORT).show()
+                }
+            })
+        }
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment SearchFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            SearchFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    private fun getAllProducts() {
+        binding.loadingLyt.visibility = View.VISIBLE
+        api.getAllProducts().enqueue(object : Callback<ProductResponse> {
+            override fun onResponse(
+                call: Call<ProductResponse>,
+                response: Response<ProductResponse>
+            ) {
+                if (response.isSuccessful) {
+                    response.body()?.let {
+                        binding.loadingLyt.visibility = View.GONE
+                        binding.searchProductRv.visibility = View.VISIBLE
+                        adapter.updateList(it.products!!)
+                    }
+                } else {
+                    Toast.makeText(requireContext(), "Error occured", Toast.LENGTH_SHORT).show()
                 }
             }
+
+            override fun onFailure(call: Call<ProductResponse>, t: Throwable) {
+                Toast.makeText(requireContext(), t.toString(), Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun searchProduct() {
+        binding.searchEditText.addTextChangedListener {
+            binding.loadingLyt.visibility = View.VISIBLE
+            val query = it.toString()
+
+            api.searchProduct(
+                searchQuery = query
+            ).enqueue(object : Callback<ProductResponse> {
+                override fun onResponse(
+                    call: Call<ProductResponse>,
+                    response: Response<ProductResponse>
+                ) {
+                    if (response.isSuccessful) {
+                        response.body()?.let { data ->
+                            binding.loadingLyt.visibility = View.GONE
+                            if (data.total == 0) {
+                                //Product not found
+                                binding.productNotFoundLyt.visibility = View.VISIBLE
+                                binding.searchProductRv.visibility = View.GONE
+                            } else {
+                                binding.productNotFoundLyt.visibility = View.GONE
+                                binding.searchProductRv.visibility = View.VISIBLE
+                                adapter.updateList(data.products!!)
+                            }
+                        }
+                    } else {
+                        Toast.makeText(requireContext(), "Error occured", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<ProductResponse>, t: Throwable) {
+                    Toast.makeText(requireContext(), t.toString(), Toast.LENGTH_SHORT).show()
+                }
+            })
+        }
+    }
+
+    override fun onDestroyView() {
+        _binding = null
+        super.onDestroyView()
     }
 }
